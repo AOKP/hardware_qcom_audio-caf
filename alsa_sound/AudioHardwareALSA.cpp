@@ -37,7 +37,11 @@
 #include <cutils/properties.h>
 #include <media/AudioRecord.h>
 #include <hardware_legacy/power.h>
+
+#ifdef QCOM_RESAMPLER
 #include <audio_utils/resampler.h>
+#endif
+
 #include <pthread.h>
 
 #include "AudioHardwareALSA.h"
@@ -291,7 +295,9 @@ AudioHardwareALSA::AudioHardwareALSA() :
     mUsbDevice = NULL;
     mUsbStream = NULL;
     mExtOutStream = NULL;
+#ifdef QCOM_RESAMPLER
     mResampler = NULL;
+#endif
     mExtOutActiveUseCases = USECASE_NONE;
     mIsExtOutEnabled = false;
     mKillExtOutThread = false;
@@ -313,10 +319,12 @@ AudioHardwareALSA::~AudioHardwareALSA()
         it->useCase[0] = 0;
         mDeviceList.erase(it);
     }
+#ifdef QCOM_RESAMPLER
     if (mResampler) {
         release_resampler(mResampler);
         mResampler = NULL;
     }
+#endif
 #ifdef QCOM_ACDB_ENABLED
      if (acdb_deallocate == NULL) {
         ALOGE("dlsym: Error:%s Loading acdb_deallocate_ACDB", dlerror());
@@ -2479,6 +2487,7 @@ void AudioHardwareALSA::switchExtOut(int device) {
     } else {
         mExtOutStream = NULL;
     }
+#ifdef QCOM_RESAMPLER
     if (mExtOutStream != NULL) {
         sampleRate = mExtOutStream->common.get_sample_rate(&mExtOutStream->common);
         if (sampleRate > AFE_PROXY_SAMPLE_RATE) {
@@ -2510,6 +2519,7 @@ void AudioHardwareALSA::switchExtOut(int device) {
             }
         }
     }
+#endif
 }
 
 status_t AudioHardwareALSA::isExtOutDevice(int device) {
@@ -2587,6 +2597,7 @@ void AudioHardwareALSA::extOutThreadFunc() {
         void *copyBuffer = data;
         numBytesRemaining = size;
         proxyBufferTime = mALSADevice->mProxyParams.mBufferTime;
+#ifdef QCOM_RESAMPLER
         {
             Mutex::Autolock autolock1(mExtOutMutex);
             if (mResampler != NULL) {
@@ -2602,6 +2613,7 @@ void AudioHardwareALSA::extOutThreadFunc() {
                 ALOGV("inFrames %d outFrames %d",inFrames,outFrames);
             }
         }
+#endif
         while (err == OK && (numBytesRemaining  > 0) && !mKillExtOutThread
                 && mIsExtOutEnabled ) {
             {

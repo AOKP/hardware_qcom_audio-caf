@@ -890,8 +890,9 @@ protected:
     audio_stream_out   *mUsbStream;
     audio_hw_device_t  *mUsbDevice;
     audio_stream_out   *mExtOutStream;
+#ifdef QCOM_RESAMPLER
     struct resampler_itfe *mResampler;
-
+#endif
 
     volatile bool       mKillExtOutThread;
     volatile bool       mExtOutThreadAlive;
