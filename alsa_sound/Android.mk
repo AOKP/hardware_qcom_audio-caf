@@ -53,8 +53,10 @@ ifeq ($(BOARD_HAVE_AUDIENCE_A2220),true)
   LOCAL_CFLAGS += -DUSE_A2220
 endif
 
+ifeq ($(BOARD_USES_RESAMPLER),true)
 ifneq ($(BOARD_BROKEN_RESAMPLER),true)
   LOCAL_CFLAGS += -DQCOM_RESAMPLER
+endif
 endif
 
 LOCAL_SRC_FILES := \
