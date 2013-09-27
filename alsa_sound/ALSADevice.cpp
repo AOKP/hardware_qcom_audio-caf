@@ -2052,7 +2052,29 @@ char* ALSADevice::getUCMDevice(uint32_t devices, int input, char *rxDevice)
                             strlen(SND_USE_CASE_DEV_ANC_HANDSET) + 1)) {
                         return strdup(SND_USE_CASE_DEV_AANC_LINE); /* AANC LINE TX */
                     } else {
+#ifdef FIND5_MIC_DEVICES
+                        if (mCallMode == AUDIO_MODE_IN_CALL){
+                            if (((rxDevice != NULL) &&
+                                !strncmp(rxDevice, SND_USE_CASE_DEV_SPEAKER,
+                                (strlen(SND_USE_CASE_DEV_SPEAKER)+1))) ||
+                                ((rxDevice == NULL) &&
+                                !strncmp(mCurRxUCMDevice, SND_USE_CASE_DEV_SPEAKER,
+                                (strlen(SND_USE_CASE_DEV_SPEAKER)+1)))) {
+                                // speaker mode
+                                return strdup(SND_USE_CASE_DEV_OPPO_VOC_SPEAKER_MIC); /* BUILTIN-MIC TX */
+                            } else
+                                // earpice mode
+                                return strdup(SND_USE_CASE_DEV_OPPO_VOC_MIC); /* BUILTIN-MIC TX */
+                        } else {
+                            if (mInputSource == AUDIO_SOURCE_CAMCORDER)
+                                // camcorder mode
+                                return strdup(SND_USE_CASE_DEV_OPPO_CAM_MIC);
+                            else
+                                return strdup(SND_USE_CASE_DEV_OPPO_MIC); /* BUILTIN-MIC TX */
+                        }
+#else
                         return strdup(SND_USE_CASE_DEV_LINE); /* BUILTIN-MIC TX */
+#endif
                     }
                 }
             }

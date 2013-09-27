@@ -121,6 +121,10 @@ ifneq ($(TARGET_USES_QCOM_COMPRESSED_AUDIO),false)
     common_cflags += -DQCOM_COMPRESSED_AUDIO_ENABLED
 endif
 
+ifeq ($(TARGET_DEVICE),find5)
+    common_cflags += -DFIND5_MIC_DEVICES
+endif
+
 
 include $(CLEAR_VARS)
 
